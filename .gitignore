@@ -1,0 +1,41 @@
+
+# Dependencias
+node_modules/
+
+# Variables privadas y credenciales
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p8
+*.p12
+*.jks
+*.mobileprovision
+
+# Expo
+.expo/
+dist/
+web-build/
+
+# Archivos nativos generados
+/ios
+/android
+.kotlin/
+
+# Metro
+.metro-health-check*
+
+# Depuración
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+
+# TypeScript
+*.tsbuildinfo
+
+# Otros
+*.orig.*
