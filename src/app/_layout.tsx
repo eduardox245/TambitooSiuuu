@@ -1,4 +1,3 @@
-
 import {
   DarkTheme,
   DefaultTheme,
@@ -24,7 +23,7 @@ export default function RootLayout() {
 
       <AuthGate>
         <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="tabs" />
           <Stack.Screen name="productos" />
           <Stack.Screen name="clientes" />
           <Stack.Screen name="movimientos" />
