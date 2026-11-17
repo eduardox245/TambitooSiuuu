@@ -1,4 +1,3 @@
-
 import 'react-native-url-polyfill/auto';
 
 import { Platform } from 'react-native';
@@ -14,10 +13,14 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
+// Durante la compilacion (Node) no existe window ni localStorage.
+const hayNavegador =
+  typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+
 const secureStorage = {
   getItem: async (key: string) => {
     if (Platform.OS === 'web') {
-      return localStorage.getItem(key);
+      return hayNavegador ? window.localStorage.getItem(key) : null;
     }
 
     return SecureStore.getItemAsync(key);
@@ -25,7 +28,7 @@ const secureStorage = {
 
   setItem: async (key: string, value: string) => {
     if (Platform.OS === 'web') {
-      localStorage.setItem(key, value);
+      if (hayNavegador) window.localStorage.setItem(key, value);
       return;
     }
 
@@ -34,7 +37,7 @@ const secureStorage = {
 
   removeItem: async (key: string) => {
     if (Platform.OS === 'web') {
-      localStorage.removeItem(key);
+      if (hayNavegador) window.localStorage.removeItem(key);
       return;
     }
 
@@ -42,11 +45,14 @@ const secureStorage = {
   },
 };
 
+// En web sin navegador (compilacion) no se guarda sesion ni se refresca el token.
+const sesionDisponible = Platform.OS !== 'web' || hayNavegador;
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage: secureStorage,
-    autoRefreshToken: true,
-    persistSession: true,
+    autoRefreshToken: sesionDisponible,
+    persistSession: sesionDisponible,
     detectSessionInUrl: false,
   },
 });
