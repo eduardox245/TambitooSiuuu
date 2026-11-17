@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   AppState,
+  Platform,
   Pressable,
   StatusBar,
   StyleSheet,
@@ -18,9 +19,10 @@ import { supabase } from '@/lib/supabase';
 
 type Mode = 'loading' | 'login' | 'setup' | 'unlock' | 'app';
 
-const GREEN = '#168A65';
-const DARK_GREEN = '#075B43';
-const BACKGROUND = '#F0FAF5';
+const MORADO = '#652A91';
+const MORADO_OSCURO = '#40165F';
+const AMARILLO = '#FFD044';
+const BACKGROUND = '#FFFCF6';
 
 export default function AuthGate({
   children,
@@ -47,6 +49,25 @@ export default function AuthGate({
     setMode(newMode);
   };
 
+  // En web se utiliza localStorage solo para la vista de desarrollo.
+  // En Android e iOS se conserva SecureStore.
+  const getPinItem = async (key: string): Promise<string | null> => {
+    if (Platform.OS === 'web') {
+      return localStorage.getItem(key);
+    }
+
+    return SecureStore.getItemAsync(key);
+  };
+
+  const setPinItem = async (key: string, value: string) => {
+    if (Platform.OS === 'web') {
+      localStorage.setItem(key, value);
+      return;
+    }
+
+    await SecureStore.setItemAsync(key, value);
+  };
+
   const hashPin = async (salt: string, value: string) => {
     return Crypto.digestStringAsync(
       Crypto.CryptoDigestAlgorithm.SHA256,
@@ -61,13 +82,15 @@ export default function AuthGate({
 
   const checkPinExists = async () => {
     const keys = pinKeys();
-    const savedHash = await SecureStore.getItemAsync(keys.hash);
-    const savedSalt = await SecureStore.getItemAsync(keys.salt);
+    const savedHash = await getPinItem(keys.hash);
+    const savedSalt = await getPinItem(keys.salt);
+
     return Boolean(savedHash && savedSalt);
   };
 
   const prepareUser = async (id: string) => {
     userId.current = id;
+
     const exists = await checkPinExists();
 
     setPin('');
@@ -115,6 +138,7 @@ export default function AuthGate({
           userId.current = '';
           setPin('');
           setPassword('');
+          setError('');
           changeMode('login');
         }
       });
@@ -125,16 +149,22 @@ export default function AuthGate({
     };
   }, []);
 
-  // Solicitar Face ID automáticamente al entrar al modo de desbloqueo.
+  // La autenticación biométrica solo se solicita en dispositivos móviles.
   useEffect(() => {
     if (mode !== 'unlock' || biometricAttempted.current) return;
 
     biometricAttempted.current = true;
 
     const authenticate = async () => {
+      if (Platform.OS === 'web') {
+        setShowPin(true);
+        return;
+      }
+
       try {
         const hasHardware =
           await LocalAuthentication.hasHardwareAsync();
+
         const enrolled =
           await LocalAuthentication.isEnrolledAsync();
 
@@ -165,7 +195,10 @@ export default function AuthGate({
   }, [mode]);
 
   // Bloquear la aplicación al salir y volver a solicitar autenticación.
+  // En web no aplicamos este bloqueo automático.
   useEffect(() => {
+    if (Platform.OS === 'web') return;
+
     const subscription = AppState.addEventListener(
       'change',
       (nextState) => {
@@ -219,6 +252,7 @@ export default function AuthGate({
 
   const guardarPin = async (value: string) => {
     const saltBytes = Crypto.getRandomBytes(16);
+
     const salt = Array.from(saltBytes)
       .map((byte) => byte.toString(16).padStart(2, '0'))
       .join('');
@@ -226,14 +260,14 @@ export default function AuthGate({
     const hash = await hashPin(salt, value);
     const keys = pinKeys();
 
-    await SecureStore.setItemAsync(keys.salt, salt);
-    await SecureStore.setItemAsync(keys.hash, hash);
+    await setPinItem(keys.salt, salt);
+    await setPinItem(keys.hash, hash);
   };
 
   const verificarPin = async (value: string) => {
     const keys = pinKeys();
-    const salt = await SecureStore.getItemAsync(keys.salt);
-    const savedHash = await SecureStore.getItemAsync(keys.hash);
+    const salt = await getPinItem(keys.salt);
+    const savedHash = await getPinItem(keys.hash);
 
     if (!salt || !savedHash) {
       setError('No se encontró tu PIN. Inicia sesión nuevamente.');
@@ -310,7 +344,7 @@ export default function AuthGate({
     return (
       <SafeAreaView style={styles.loading}>
         <StatusBar barStyle="dark-content" />
-        <ActivityIndicator size="large" color={GREEN} />
+        <ActivityIndicator size="large" color={MORADO} />
         <Text style={styles.loadingText}>Preparando TAMBITOO...</Text>
       </SafeAreaView>
     );
@@ -324,7 +358,7 @@ export default function AuthGate({
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" background-Color={BACKGROUND} />
+      <StatusBar barStyle="dark-content" backgroundColor={BACKGROUND} />
 
       <View style={styles.content}>
         <View style={styles.logo}>
@@ -347,7 +381,7 @@ export default function AuthGate({
                 value={email}
                 onChangeText={setEmail}
                 placeholder="tucorreo@ejemplo.com"
-                placeholderTextColor="#91A79D"
+                placeholderTextColor="#A99AB2"
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
@@ -359,7 +393,7 @@ export default function AuthGate({
                 value={password}
                 onChangeText={setPassword}
                 placeholder="Ingresa tu contraseña"
-                placeholderTextColor="#91A79D"
+                placeholderTextColor="#A99AB2"
                 secureTextEntry
                 autoCapitalize="none"
               />
@@ -410,27 +444,30 @@ export default function AuthGate({
             </View>
 
             <View style={styles.keypad}>
-              {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'delete'].map(
-                (item, index) => (
-                  <Pressable
-                    key={index}
-                    style={[
-                      styles.key,
-                      item === '' && styles.emptyKey,
-                    ]}
-                    disabled={item === ''}
-                    onPress={() =>
-                      item === 'delete'
-                        ? borrarNumero()
-                        : presionarNumero(item)
-                    }
-                  >
-                    <Text style={styles.keyText}>
-                      {item === 'delete' ? '⌫' : item}
-                    </Text>
-                  </Pressable>
-                )
-              )}
+              {[
+                '1', '2', '3',
+                '4', '5', '6',
+                '7', '8', '9',
+                '', '0', 'delete',
+              ].map((item, index) => (
+                <Pressable
+                  key={index}
+                  style={[
+                    styles.key,
+                    item === '' && styles.emptyKey,
+                  ]}
+                  disabled={item === ''}
+                  onPress={() =>
+                    item === 'delete'
+                      ? borrarNumero()
+                      : presionarNumero(item)
+                  }
+                >
+                  <Text style={styles.keyText}>
+                    {item === 'delete' ? '⌫' : item}
+                  </Text>
+                </Pressable>
+              ))}
             </View>
 
             {!!error && <Text style={styles.error}>{error}</Text>}
@@ -439,7 +476,9 @@ export default function AuthGate({
       </View>
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Tu negocio, siempre contigo.</Text>
+        <Text style={styles.footerText}>
+          Tu negocio, siempre contigo.
+        </Text>
       </View>
     </SafeAreaView>
   );
@@ -459,7 +498,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: 14,
-    color: DARK_GREEN,
+    color: MORADO_OSCURO,
     fontSize: 15,
   },
   content: {
@@ -472,31 +511,31 @@ const styles = StyleSheet.create({
     width: 62,
     height: 62,
     borderRadius: 20,
-    backgroundColor: GREEN,
+    backgroundColor: MORADO,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 10,
   },
   logoLetter: {
-    color: '#FFFFFF',
+    color: AMARILLO,
     fontSize: 36,
     fontWeight: '800',
   },
   brand: {
-    color: DARK_GREEN,
+    color: MORADO_OSCURO,
     fontSize: 23,
     fontWeight: '800',
     letterSpacing: 2,
     marginBottom: 35,
   },
   title: {
-    color: DARK_GREEN,
+    color: MORADO_OSCURO,
     fontSize: 23,
     fontWeight: '700',
     textAlign: 'center',
   },
   subtitle: {
-    color: '#668477',
+    color: '#786887',
     fontSize: 14,
     textAlign: 'center',
     marginTop: 9,
@@ -513,11 +552,12 @@ const styles = StyleSheet.create({
     height: 13,
     borderRadius: 7,
     borderWidth: 1.5,
-    borderColor: GREEN,
+    borderColor: MORADO,
     backgroundColor: '#FFFFFF',
   },
   dotFilled: {
-    backgroundColor: GREEN,
+    backgroundColor: AMARILLO,
+    borderColor: MORADO,
   },
   keypad: {
     width: '100%',
@@ -532,14 +572,17 @@ const styles = StyleSheet.create({
     margin: '1.5%',
     borderRadius: 18,
     backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#EEE5F3',
     alignItems: 'center',
     justifyContent: 'center',
   },
   emptyKey: {
     backgroundColor: 'transparent',
+    borderWidth: 0,
   },
   keyText: {
-    color: DARK_GREEN,
+    color: MORADO_OSCURO,
     fontSize: 25,
     fontWeight: '600',
   },
@@ -548,7 +591,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   label: {
-    color: DARK_GREEN,
+    color: MORADO_OSCURO,
     fontSize: 14,
     fontWeight: '600',
     marginTop: 8,
@@ -557,15 +600,15 @@ const styles = StyleSheet.create({
     height: 53,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#D7E9DF',
+    borderColor: '#E6D9ED',
     borderRadius: 14,
     paddingHorizontal: 15,
-    color: DARK_GREEN,
+    color: MORADO_OSCURO,
     fontSize: 15,
   },
   loginButton: {
     height: 54,
-    backgroundColor: GREEN,
+    backgroundColor: MORADO,
     borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
@@ -587,7 +630,7 @@ const styles = StyleSheet.create({
     paddingBottom: 18,
   },
   footerText: {
-    color: '#86A397',
+    color: '#9B8DA2',
     fontSize: 12,
   },
 });

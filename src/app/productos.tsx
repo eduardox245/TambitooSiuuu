@@ -25,15 +25,19 @@ type Producto = {
 };
 
 const COLORS = {
-  green: '#168A65',
-  darkGreen: '#075B43',
-  lightGreen: '#DDF5E9',
-  paleGreen: '#F0FAF5',
+  purple: '#652A91',
+  darkPurple: '#54316F',
+  lightPurple: '#E8D8F3',
+  palePurple: '#F5EEFA',
+  pastelPurple: '#C9A9E0',
+  yellow: '#FFD044',
   white: '#FFFFFF',
-  background: '#F7FAF8',
-  text: '#173D31',
-  gray: '#84968D',
-  red: '#D9534F',
+  background: '#F7F2FA',
+  text: '#30223B',
+  gray: '#887D91',
+  border: '#E8DDEF',
+  red: '#B45A83',
+  redLight: '#FBEAF0',
 };
 
 export default function ProductosScreen() {
@@ -273,7 +277,7 @@ export default function ProductosScreen() {
             <TextInput
               style={styles.searchInput}
               placeholder="Buscar producto..."
-              placeholderTextColor="#A0B0A7"
+              placeholderTextColor="#A99CAF"
               value={busqueda}
               onChangeText={setBusqueda}
             />
@@ -302,7 +306,7 @@ export default function ProductosScreen() {
 
           {cargando ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={COLORS.green} />
+              <ActivityIndicator size="large" color={COLORS.purple} />
               <Text style={styles.loadingText}>
                 Cargando productos...
               </Text>
@@ -414,7 +418,7 @@ export default function ProductosScreen() {
                 <TextInput
                   style={styles.input}
                   placeholder="Ej. Arroz, azúcar, gaseosa..."
-                  placeholderTextColor="#A0B0A7"
+                  placeholderTextColor="#A99CAF"
                   value={nombre}
                   onChangeText={setNombre}
                   maxLength={100}
@@ -466,7 +470,7 @@ export default function ProductosScreen() {
                   <TextInput
                     style={styles.priceInput}
                     placeholder="0.00"
-                    placeholderTextColor="#A0B0A7"
+                    placeholderTextColor="#A99CAF"
                     value={precio}
                     onChangeText={setPrecio}
                     keyboardType="decimal-pad"
@@ -519,7 +523,7 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    backgroundColor: COLORS.green,
+    backgroundColor: COLORS.purple,
     paddingHorizontal: 20,
     paddingTop: 12,
     paddingBottom: 23,
@@ -557,7 +561,7 @@ const styles = StyleSheet.create({
   },
 
   headerSubtitle: {
-    color: '#D8F5E8',
+    color: '#E9D9F4',
     fontSize: 12,
     marginTop: 3,
   },
@@ -572,7 +576,7 @@ const styles = StyleSheet.create({
   },
 
   headerCountNumber: {
-    color: COLORS.green,
+    color: COLORS.purple,
     fontSize: 19,
     fontWeight: '900',
   },
@@ -596,11 +600,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E4EEE8',
+    borderColor: COLORS.border,
   },
 
   searchIcon: {
-    color: COLORS.green,
+    color: COLORS.purple,
     fontSize: 29,
     marginRight: 9,
   },
@@ -612,7 +616,7 @@ const styles = StyleSheet.create({
   },
 
   clearText: {
-    color: COLORS.green,
+    color: COLORS.purple,
     fontSize: 24,
     paddingHorizontal: 5,
   },
@@ -626,7 +630,7 @@ const styles = StyleSheet.create({
   },
 
   sectionTitle: {
-    color: COLORS.darkGreen,
+    color: COLORS.darkPurple,
     fontSize: 21,
     fontWeight: '900',
   },
@@ -638,7 +642,7 @@ const styles = StyleSheet.create({
   },
 
   addButton: {
-    backgroundColor: COLORS.green,
+    backgroundColor: COLORS.purple,
     borderRadius: 13,
     paddingHorizontal: 14,
     paddingVertical: 11,
@@ -668,27 +672,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 8,
     borderWidth: 1,
-    borderColor: '#E7EFEA',
+    borderColor: COLORS.border,
   },
 
   emptyIcon: {
     width: 65,
     height: 65,
     borderRadius: 22,
-    backgroundColor: COLORS.lightGreen,
+    backgroundColor: COLORS.lightPurple,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 15,
   },
 
   emptySymbol: {
-    color: COLORS.green,
+    color: COLORS.purple,
     fontSize: 34,
     fontWeight: '800',
   },
 
   emptyTitle: {
-    color: COLORS.darkGreen,
+    color: COLORS.darkPurple,
     fontSize: 17,
     fontWeight: '900',
     textAlign: 'center',
@@ -703,7 +707,7 @@ const styles = StyleSheet.create({
   },
 
   emptyButton: {
-    backgroundColor: COLORS.green,
+    backgroundColor: COLORS.purple,
     borderRadius: 13,
     paddingHorizontal: 18,
     paddingVertical: 13,
@@ -724,9 +728,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E7EFEA',
+    borderColor: COLORS.border,
     elevation: 2,
-    shadowColor: '#173D31',
+    shadowColor: '#54316F',
     shadowOpacity: 0.04,
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
@@ -736,13 +740,13 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 15,
-    backgroundColor: COLORS.lightGreen,
+    backgroundColor: COLORS.lightPurple,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   productSymbol: {
-    color: COLORS.green,
+    color: COLORS.purple,
     fontSize: 27,
     fontWeight: '800',
   },
@@ -753,7 +757,7 @@ const styles = StyleSheet.create({
   },
 
   productName: {
-    color: COLORS.darkGreen,
+    color: COLORS.darkPurple,
     fontSize: 14,
     fontWeight: '900',
   },
@@ -765,7 +769,7 @@ const styles = StyleSheet.create({
   },
 
   productPrice: {
-    color: COLORS.green,
+    color: COLORS.purple,
     fontSize: 14,
     fontWeight: '900',
     marginTop: 6,
@@ -783,20 +787,20 @@ const styles = StyleSheet.create({
   },
 
   editButton: {
-    backgroundColor: COLORS.lightGreen,
+    backgroundColor: COLORS.lightPurple,
     borderRadius: 9,
     paddingHorizontal: 10,
     paddingVertical: 6,
   },
 
   editButtonText: {
-    color: COLORS.green,
+    color: COLORS.purple,
     fontSize: 10,
     fontWeight: '800',
   },
 
   deleteButton: {
-    backgroundColor: '#FFF0EF',
+    backgroundColor: COLORS.redLight,
     borderRadius: 9,
     paddingHorizontal: 10,
     paddingVertical: 6,
@@ -814,7 +818,7 @@ const styles = StyleSheet.create({
 
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(5,35,25,0.48)',
+    backgroundColor: 'rgba(48,34,59,0.48)',
     justifyContent: 'flex-end',
   },
 
@@ -835,7 +839,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 5,
     borderRadius: 5,
-    backgroundColor: '#DCE8E0',
+    backgroundColor: COLORS.lightPurple,
     alignSelf: 'center',
     marginBottom: 20,
   },
@@ -848,7 +852,7 @@ const styles = StyleSheet.create({
   },
 
   modalTitle: {
-    color: COLORS.darkGreen,
+    color: COLORS.darkPurple,
     fontSize: 22,
     fontWeight: '900',
   },
@@ -863,19 +867,19 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 12,
-    backgroundColor: COLORS.paleGreen,
+    backgroundColor: COLORS.palePurple,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   closeText: {
-    color: COLORS.darkGreen,
+    color: COLORS.darkPurple,
     fontSize: 25,
     lineHeight: 28,
   },
 
   label: {
-    color: COLORS.darkGreen,
+    color: COLORS.darkPurple,
     fontSize: 12,
     fontWeight: '800',
     marginBottom: 8,
@@ -886,7 +890,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 13,
     borderWidth: 1,
-    borderColor: '#DFEBE3',
+    borderColor: COLORS.border,
     paddingHorizontal: 14,
     color: COLORS.text,
     backgroundColor: COLORS.background,
@@ -903,15 +907,15 @@ const styles = StyleSheet.create({
     height: 47,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#DFEBE3',
+    borderColor: COLORS.border,
     backgroundColor: COLORS.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   typeOptionSelected: {
-    backgroundColor: COLORS.lightGreen,
-    borderColor: COLORS.green,
+    backgroundColor: COLORS.lightPurple,
+    borderColor: COLORS.purple,
   },
 
   typeOptionText: {
@@ -921,14 +925,14 @@ const styles = StyleSheet.create({
   },
 
   typeOptionTextSelected: {
-    color: COLORS.darkGreen,
+    color: COLORS.darkPurple,
   },
 
   priceInputContainer: {
     height: 50,
     borderRadius: 13,
     borderWidth: 1,
-    borderColor: '#DFEBE3',
+    borderColor: COLORS.border,
     backgroundColor: COLORS.background,
     flexDirection: 'row',
     alignItems: 'center',
@@ -936,7 +940,7 @@ const styles = StyleSheet.create({
   },
 
   currency: {
-    color: COLORS.green,
+    color: COLORS.purple,
     fontWeight: '900',
     fontSize: 15,
     marginRight: 10,
@@ -951,7 +955,7 @@ const styles = StyleSheet.create({
   saveButton: {
     height: 51,
     borderRadius: 14,
-    backgroundColor: COLORS.green,
+    backgroundColor: COLORS.purple,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 25,

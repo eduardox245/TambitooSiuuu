@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -13,18 +13,20 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
 const COLORS = {
-  green: '#168A65',
-  darkGreen: '#075B43',
-  lightGreen: '#DDF5E9',
-  paleGreen: '#F0FAF5',
-  yellow: '#FFD66B',
-  orange: '#FFAD70',
-  blue: '#9BD6F5',
-  pink: '#F7D5E3',
+  purple: '#652A91',
+  darkPurple: '#54316F',
+  lightPurple: '#E8D8F3',
+  palePurple: '#F5EEFA',
+  pastelPurple: '#C9A9E0',
+  yellow: '#FFD044',
+  orange: '#F4C6A5',
+  blue: '#D9C9ED',
+  pink: '#EED9EB',
   white: '#FFFFFF',
-  background: '#F7FAF8',
-  text: '#173D31',
-  gray: '#84968D',
+  background: '#F7F2FA',
+  text: '#30223B',
+  gray: '#887D91',
+  border: '#E8DDEF',
 };
 
 type ModuleCardProps = {
@@ -33,6 +35,14 @@ type ModuleCardProps = {
   subtitle: string;
   color: string;
   onPress: () => void;
+};
+
+type ModuleItem = {
+  emoji: string;
+  title: string;
+  subtitle: string;
+  color: string;
+  route: string;
 };
 
 function ModuleCard({
@@ -66,20 +76,74 @@ export default function HomeScreen() {
   const [busqueda, setBusqueda] = useState('');
   const router = useRouter();
 
-  const abrirModulo = (nombre: string) => {
-    if (nombre === 'Productos') {
-      router.push('/productos');
-      return;
+  const modulos: ModuleItem[] = [
+    {
+      emoji: '🛍️',
+      title: 'Productos',
+      subtitle: 'Administra tu catálogo',
+      color: '#E8D8F3',
+      route: '/productos',
+    },
+    {
+      emoji: '💸',
+      title: 'Movimientos',
+      subtitle: 'Revisa tus pagos',
+      color: '#F5E3F0',
+      route: '/movimientos',
+    },
+    {
+      emoji: '👥',
+      title: 'Clientes',
+      subtitle: 'Gestiona tus clientes',
+      color: '#E5DDF3',
+      route: '/clientes',
+    },
+    {
+      emoji: '🧾',
+      title: 'Deudas',
+      subtitle: 'Controla las cuentas',
+      color: '#DCC8ED',
+      route: '/deudas',
+    },
+    {
+      emoji: '💰',
+      title: 'Registrar abonos',
+      subtitle: 'Registra los pagos',
+      color: '#FFF1C9',
+      route: '/abonos',
+    },
+    {
+      emoji: '👤',
+      title: 'Mi cuenta',
+      subtitle: 'Configura tu perfil',
+      color: '#EED9EB',
+      route: '/cuenta',
+    },
+  ];
+
+  const modulosFiltrados = useMemo(() => {
+    const texto = busqueda.trim().toLowerCase();
+
+    if (!texto) {
+      return modulos;
     }
 
-    console.log(`Módulo seleccionado: ${nombre}`);
+    return modulos.filter(
+      (modulo) =>
+        modulo.title.toLowerCase().includes(texto) ||
+        modulo.subtitle.toLowerCase().includes(texto)
+    );
+  }, [busqueda]);
+
+  const abrirModulo = (ruta: string) => {
+    router.push(ruta as any);
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar
         barStyle="light-content"
-        backgroundColor={COLORS.green}
+        backgroundColor={COLORS.purple}
       />
 
       <ScrollView
@@ -105,9 +169,11 @@ export default function HomeScreen() {
           <View style={styles.welcomeCard}>
             <View style={styles.welcomeTextContainer}>
               <Text style={styles.welcomeSmall}>BIENVENIDO</Text>
+
               <Text style={styles.welcomeTitle}>
                 TAMBITOO,{'\n'}es tu casa.
               </Text>
+
               <Text style={styles.welcomeDescription}>
                 Administra tu negocio de forma sencilla.
               </Text>
@@ -131,7 +197,7 @@ export default function HomeScreen() {
             <TextInput
               style={styles.searchInput}
               placeholder="¿Qué deseas buscar?"
-              placeholderTextColor="#A0B0A7"
+              placeholderTextColor="#A99CAF"
               value={busqueda}
               onChangeText={setBusqueda}
             />
@@ -155,85 +221,25 @@ export default function HomeScreen() {
 
           {/* RECUADROS */}
           <View style={styles.modulesGrid}>
-            <ModuleCard
-              emoji="🛍️"
-              title="Productos"
-              subtitle="Administra tu catálogo"
-              color="#DDF5E9"
-              onPress={() => abrirModulo('Productos')}
-            />
-
-            <ModuleCard
-              emoji="💸"
-              title="Movimientos"
-              subtitle="Revisa tus pagos"
-              color="#FFE8D6"
-              onPress={() => abrirModulo('Movimientos')}
-            />
-
-            <ModuleCard
-              emoji="👥"
-              title="Clientes"
-              subtitle="Gestiona tus clientes"
-              color="#D5F0FA"
-              onPress={() => abrirModulo('Clientes')}
-            />
-
-            <ModuleCard
-              emoji="🧾"
-              title="Deudas"
-              subtitle="Controla las cuentas"
-              color="#E8DDF8"
-              onPress={() => abrirModulo('Deudas')}
-            />
-
-            <ModuleCard
-              emoji="💰"
-              title="Registrar abonos"
-              subtitle="Registra los pagos"
-              color="#FFF1C9"
-              onPress={() => abrirModulo('Abonos')}
-            />
-
-            <ModuleCard
-              emoji="👤"
-              title="Mi cuenta"
-              subtitle="Configura tu perfil"
-              color="#F7DDE8"
-              onPress={() => abrirModulo('Mi cuenta')}
-            />
+            {modulosFiltrados.map((modulo) => (
+              <ModuleCard
+                key={modulo.title}
+                emoji={modulo.emoji}
+                title={modulo.title}
+                subtitle={modulo.subtitle}
+                color={modulo.color}
+                onPress={() => abrirModulo(modulo.route)}
+              />
+            ))}
           </View>
 
-          {/* BANNER */}
-          <TouchableOpacity
-            activeOpacity={0.9}
-            style={styles.banner}
-            onPress={() => abrirModulo('TAMBITOO')}
-          >
-            <View style={styles.bannerTextContainer}>
-              <Text style={styles.bannerTag}>
-                ORGANIZA TU NEGOCIO
-              </Text>
-
-              <Text style={styles.bannerTitle}>
-                ¡Todo bajo{'\n'}control!
-              </Text>
-
-              <Text style={styles.bannerSubtitle}>
-                Más orden, más tranquilidad.
+          {modulosFiltrados.length === 0 && (
+            <View style={styles.emptySearch}>
+              <Text style={styles.emptySearchText}>
+                No se encontraron módulos.
               </Text>
             </View>
-
-            <View style={styles.bannerGraphic}>
-              <View style={styles.bannerGraphicInner}>
-                <Text style={styles.bannerGraphicLetter}>T</Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-
-          <Text style={styles.footer}>
-            TAMBITOO · Tu negocio, más fácil
-          </Text>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -251,7 +257,7 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    backgroundColor: COLORS.green,
+    backgroundColor: COLORS.purple,
     paddingHorizontal: 22,
     paddingTop: 18,
     paddingBottom: 28,
@@ -275,7 +281,7 @@ const styles = StyleSheet.create({
   },
 
   tagline: {
-    color: '#D8F5E8',
+    color: '#E9D9F4',
     fontSize: 12,
     marginTop: 4,
     fontWeight: '600',
@@ -292,7 +298,7 @@ const styles = StyleSheet.create({
   },
 
   logoSymbol: {
-    color: COLORS.green,
+    color: COLORS.purple,
     fontSize: 32,
     fontWeight: '900',
   },
@@ -307,7 +313,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     zIndex: 2,
     elevation: 5,
-    shadowColor: '#063F2E',
+    shadowColor: '#40165F',
     shadowOpacity: 0.12,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 5 },
@@ -318,7 +324,7 @@ const styles = StyleSheet.create({
   },
 
   welcomeSmall: {
-    color: COLORS.green,
+    color: COLORS.purple,
     fontWeight: '900',
     fontSize: 11,
     letterSpacing: 1.5,
@@ -326,7 +332,7 @@ const styles = StyleSheet.create({
   },
 
   welcomeTitle: {
-    color: COLORS.darkGreen,
+    color: COLORS.darkPurple,
     fontSize: 23,
     fontWeight: '900',
     lineHeight: 28,
@@ -342,7 +348,7 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderRadius: 24,
-    backgroundColor: COLORS.lightGreen,
+    backgroundColor: COLORS.lightPurple,
     alignItems: 'center',
     justifyContent: 'center',
     marginLeft: 8,
@@ -350,7 +356,7 @@ const styles = StyleSheet.create({
   },
 
   welcomeLetter: {
-    color: COLORS.green,
+    color: COLORS.purple,
     fontSize: 43,
     fontWeight: '900',
   },
@@ -360,7 +366,7 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
     borderRadius: 75,
-    backgroundColor: '#279D78',
+    backgroundColor: '#7947A0',
     top: -75,
     right: 70,
   },
@@ -370,7 +376,7 @@ const styles = StyleSheet.create({
     width: 110,
     height: 110,
     borderRadius: 55,
-    backgroundColor: '#087454',
+    backgroundColor: '#4A1C70',
     bottom: -65,
     left: -25,
   },
@@ -388,16 +394,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E4EEE8',
+    borderColor: COLORS.border,
     elevation: 2,
-    shadowColor: '#173D31',
+    shadowColor: '#54316F',
     shadowOpacity: 0.05,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 2 },
   },
 
   searchIcon: {
-    color: COLORS.green,
+    color: COLORS.purple,
     fontSize: 30,
     marginRight: 10,
     lineHeight: 35,
@@ -410,7 +416,7 @@ const styles = StyleSheet.create({
   },
 
   clearSearch: {
-    color: COLORS.green,
+    color: COLORS.purple,
     fontSize: 24,
     paddingHorizontal: 5,
   },
@@ -421,7 +427,7 @@ const styles = StyleSheet.create({
   },
 
   sectionTitle: {
-    color: COLORS.darkGreen,
+    color: COLORS.darkPurple,
     fontSize: 21,
     fontWeight: '900',
   },
@@ -446,9 +452,9 @@ const styles = StyleSheet.create({
     borderRadius: 21,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#E7EFEA',
+    borderColor: COLORS.border,
     elevation: 2,
-    shadowColor: '#173D31',
+    shadowColor: '#54316F',
     shadowOpacity: 0.05,
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 },
@@ -468,7 +474,7 @@ const styles = StyleSheet.create({
   },
 
   moduleTitle: {
-    color: COLORS.darkGreen,
+    color: COLORS.darkPurple,
     fontSize: 15,
     fontWeight: '900',
   },
@@ -487,85 +493,25 @@ const styles = StyleSheet.create({
     width: 23,
     height: 23,
     borderRadius: 12,
-    backgroundColor: COLORS.lightGreen,
+    backgroundColor: COLORS.lightPurple,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   arrow: {
-    color: COLORS.green,
+    color: COLORS.purple,
     fontSize: 20,
     lineHeight: 22,
     fontWeight: '800',
   },
 
-  banner: {
-    marginTop: 23,
-    backgroundColor: COLORS.darkGreen,
-    borderRadius: 23,
-    padding: 19,
-    minHeight: 145,
-    flexDirection: 'row',
+  emptySearch: {
+    padding: 25,
     alignItems: 'center',
-    overflow: 'hidden',
   },
 
-  bannerTextContainer: {
-    flex: 1,
-    zIndex: 2,
-  },
-
-  bannerTag: {
-    color: COLORS.yellow,
-    fontSize: 9,
-    fontWeight: '900',
-    letterSpacing: 1,
-    marginBottom: 8,
-  },
-
-  bannerTitle: {
-    color: COLORS.white,
-    fontSize: 20,
-    fontWeight: '900',
-    lineHeight: 25,
-  },
-
-  bannerSubtitle: {
-    color: '#D5EEE3',
-    fontSize: 10,
-    marginTop: 8,
-  },
-
-  bannerGraphic: {
-    width: 75,
-    height: 75,
-    borderRadius: 25,
-    backgroundColor: '#278B6B',
-    alignItems: 'center',
-    justifyContent: 'center',
-    transform: [{ rotate: '8deg' }],
-  },
-
-  bannerGraphicInner: {
-    width: 53,
-    height: 53,
-    borderRadius: 18,
-    backgroundColor: COLORS.white,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  bannerGraphicLetter: {
-    color: COLORS.green,
-    fontSize: 31,
-    fontWeight: '900',
-  },
-
-  footer: {
-    color: '#9BAEA3',
-    textAlign: 'center',
-    fontSize: 11,
-    marginTop: 23,
-    marginBottom: 5,
+  emptySearchText: {
+    color: COLORS.gray,
+    fontSize: 13,
   },
 });
