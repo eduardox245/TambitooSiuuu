@@ -1,3 +1,4 @@
+
 {
   "expo": {
     "name": "TAMBITOO",
@@ -17,8 +18,9 @@
       "bundleIdentifier": "com.tambitoo.tambitoo"
     },
     "android": {
+      "package": "com.tambitoo.tambitoo",
       "adaptiveIcon": {
-        "backgroundColor": "#168A65",
+        "backgroundColor": "#FFD044",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -38,9 +40,9 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#168A65",
+          "backgroundColor": "#FFD044",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 120
+          "imageWidth": 250
         }
       ],
       "expo-secure-store",
