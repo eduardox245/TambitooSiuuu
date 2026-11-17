@@ -1,9 +1,9 @@
 name: Compilar TAMBITOO para iOS y Android
 
 on:
-  workflow_dispatch:
   push:
     branches: [main]
+  workflow_dispatch:
 
 env:
   EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
@@ -14,71 +14,90 @@ jobs:
     name: APK de Android
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Descargar proyecto
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
-      - uses: actions/setup-java@v4
+      - name: Configurar Java
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-      - run: npm ci
+      - name: Instalar dependencias
+        run: npm ci
 
       - name: Generar proyecto nativo Android
-        run: npx expo prebuild --platform android --no-install
+        run: npx expo prebuild --platform android --clean --no-install
 
       - name: Compilar APK
         working-directory: android
         run: ./gradlew assembleRelease --no-daemon
 
-      - uses: actions/upload-artifact@v4
+      - name: Guardar APK
+        uses: actions/upload-artifact@v4
         with:
-          name: TAMBITOO-apk
+          name: TAMBITOO-APK
           path: android/app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
 
   ios:
     name: IPA de iOS (sin firmar)
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@v4
+      - name: Descargar proyecto
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
-      - run: npm ci
+      - name: Instalar dependencias
+        run: npm ci
 
       - name: Generar proyecto nativo iOS
-        run: npx expo prebuild --platform ios
+        run: npx expo prebuild --platform ios --clean --no-install
 
-      - name: Compilar sin firmar
+      - name: Instalar CocoaPods
         working-directory: ios
+        run: pod install
+
+      - name: Compilar aplicacion iOS sin firma
         run: |
-          WORKSPACE=$(ls -d *.xcworkspace | head -n 1)
-          SCHEME="${WORKSPACE%.xcworkspace}"
+          WORKSPACE=$(ls -d ios/*.xcworkspace | head -n 1)
+          SCHEME=$(basename "$WORKSPACE" .xcworkspace)
           xcodebuild \
             -workspace "$WORKSPACE" \
             -scheme "$SCHEME" \
             -configuration Release \
             -sdk iphoneos \
             -derivedDataPath build \
-            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
             build
 
       - name: Empaquetar IPA
-        working-directory: ios
         run: |
-          APP=$(find build/Build/Products/Release-iphoneos -maxdepth 1 -name "*.app" | head -n 1)
-          mkdir Payload
-          cp -R "$APP" Payload/
-          zip -qr TAMBITOO.ipa Payload
+          APP_PATH=$(find build/Build/Products/Release-iphoneos -maxdepth 1 -name "*.app" | head -n 1)
+          if [ -z "$APP_PATH" ] || [ ! -d "$APP_PATH" ]; then
+            echo "No se encontro la aplicacion compilada."
+            exit 1
+          fi
+          mkdir -p Payload
+          ditto "$APP_PATH" "Payload/$(basename "$APP_PATH")"
+          zip -r TAMBITOO-unsigned.ipa Payload
 
-      - uses: actions/upload-artifact@v4
+      - name: Guardar IPA
+        uses: actions/upload-artifact@v4
         with:
-          name: TAMBITOO-ipa
-          path: ios/TAMBITOO.ipa
+          name: TAMBITOO-IPA
+          path: TAMBITOO-unsigned.ipa
+          if-no-files-found: error
