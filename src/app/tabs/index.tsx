@@ -153,9 +153,16 @@ export default function HomeScreen() {
         {/* ENCABEZADO */}
         <View style={styles.header}>
           <View style={styles.headerTop}>
-            
+            <View>
+              <Text style={styles.brand}>TAMBITOO</Text>
+              <Text style={styles.tagline}>
+                Administra · Gestiona · Disfruta
+              </Text>
+            </View>
 
-           
+            <View style={styles.logoCircle}>
+              <Text style={styles.logoSymbol}>T</Text>
+            </View>
           </View>
 
           {/* BIENVENIDA */}
@@ -164,10 +171,12 @@ export default function HomeScreen() {
               <Text style={styles.welcomeSmall}>BIENVENIDO</Text>
 
               <Text style={styles.welcomeTitle}>
-                TAMBITOO
+                TAMBITOO,{'\n'}es tu casa.
               </Text>
 
-              
+              <Text style={styles.welcomeDescription}>
+                Administra tu negocio de forma sencilla.
+              </Text>
             </View>
 
             <View style={styles.welcomeDecoration}>
