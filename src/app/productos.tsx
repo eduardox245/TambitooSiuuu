@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -386,15 +385,22 @@ export default function ProductosScreen() {
           visible={modalVisible}
           transparent
           animationType="slide"
+          statusBarTranslucent
+          navigationBarTranslucent
           onRequestClose={() => setModalVisible(false)}
         >
           <View style={styles.modalOverlay}>
             <KeyboardAvoidingView
-              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+              behavior="padding"
               style={styles.modalKeyboard}
             >
               <View style={styles.modalCard}>
                 <View style={styles.modalHandle} />
+                <ScrollView
+                  keyboardShouldPersistTaps="handled"
+                  showsVerticalScrollIndicator={false}
+                  bounces={false}
+                >
 
                 <View style={styles.modalHeader}>
                   <View>
@@ -503,6 +509,7 @@ export default function ProductosScreen() {
                 >
                   <Text style={styles.cancelButtonText}>Cancelar</Text>
                 </TouchableOpacity>
+                </ScrollView>
               </View>
             </KeyboardAvoidingView>
           </View>
@@ -824,9 +831,11 @@ const styles = StyleSheet.create({
 
   modalKeyboard: {
     justifyContent: 'flex-end',
+    maxHeight: '100%',
   },
 
   modalCard: {
+    flexShrink: 1,
     backgroundColor: COLORS.white,
     borderTopLeftRadius: 27,
     borderTopRightRadius: 27,
